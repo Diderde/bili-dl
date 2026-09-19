@@ -88,6 +88,6 @@ class TestInstallFfmpegFromZip:
         self._make_ffmpeg_zip(zip_path)
         target = tmp_path / "ffmpeg"
         utils.install_ffmpeg_from_zip(zip_path, target)
-        (target / "bin" / "stale.txt").write_text("旧文件")
+        (target / "bin" / "stale.txt").write_text("旧文件", encoding="utf-8")
         utils.install_ffmpeg_from_zip(zip_path, target)
         assert not (target / "bin" / "stale.txt").exists()  # 旧目录被整体替换

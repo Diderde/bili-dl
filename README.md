@@ -1,10 +1,12 @@
 # B站音视频分离下载器（bili-dl）
 
+简体中文 | [English](README_EN.md)
+
 [![CI](https://github.com/Diderde/bili-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/Diderde/bili-dl/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows95)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![Tests](https://img.shields.io/badge/tests-49%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-85%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
 
 基于 [yt-dlp](https://github.com/yt-dlp/yt-dlp) 的 B 站**视频流 / 音频流分离下载**工具，内置 HTTP 412 反爬应对，界面使用 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)（深色 / 浅色 / 跟随系统主题）。
