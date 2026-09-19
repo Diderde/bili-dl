@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """用户设置持久化：JSON 存于 %APPDATA%/bili_dl，损坏时静默回退默认值。"""
 
 from __future__ import annotations

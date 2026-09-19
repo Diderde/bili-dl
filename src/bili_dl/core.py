@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """下载核心：组装 yt-dlp 选项并执行下载。
 
 本模块不依赖任何 GUI 库，便于单元测试；GUI 通过回调与引擎通信。

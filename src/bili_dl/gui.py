@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """基于 CustomTkinter 的现代化图形界面。"""
 
 from __future__ import annotations
