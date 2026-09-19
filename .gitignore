@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# 虚拟环境
+.venv/
+
+# 运行时产物
+environment_report.txt
+get-pip.py
+downloads/
+ffmpeg/

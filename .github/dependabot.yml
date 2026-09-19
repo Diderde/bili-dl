@@ -1,0 +1,11 @@
+# Dependabot：每周检查第三方依赖与 GitHub Actions 的更新并自动提 PR
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
