@@ -6,7 +6,7 @@ import re
 
 from bili_dl import __version__
 
-APP_TITLE = "B站音视频分离下载器"
+APP_TITLE = "B站音视频下载工具"
 APP_VERSION = __version__  # 单一来源：src/bili_dl/__init__.py
 
 # 只接受 bilibili.com / b23.tv，避免把任意 URL 交给 yt-dlp。

@@ -9,7 +9,7 @@ import sys
 def main(argv: list[str] | None = None) -> int:
     from bili_dl import __version__
 
-    parser = argparse.ArgumentParser(prog="bili-dl", description="B站音视频分离下载器（现代 GUI）")
+    parser = argparse.ArgumentParser(prog="bili-dl", description="B站音视频下载工具")
     parser.add_argument("--version", action="version", version=f"bili-dl {__version__}")
     parser.parse_args(argv)
 

@@ -8,7 +8,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
 
-A Windows desktop tool to download Bilibili audio & video — save video and audio as **separate streams** or merge them into a **single file**. Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), with a modern [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) interface (dark / light / follow system). Tested on Windows 11 only.
+A Windows desktop tool to download Bilibili audio & video — save video and audio as **separate streams** or merge them into a **single file**. Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), with a [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) interface (dark / light / follow system). Tested on Windows 11 only.
 
 ## Features
 
