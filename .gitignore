@@ -13,3 +13,4 @@ environment_report.txt
 get-pip.py
 downloads/
 ffmpeg/
+.mimosa/
