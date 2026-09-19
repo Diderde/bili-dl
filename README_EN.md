@@ -1,4 +1,4 @@
-# bili-dl — Bilibili Video & Audio Stream Downloader
+# bili-dl — Bilibili Audio & Video Download Tool
 
 [简体中文](README.md) | English
 
@@ -6,23 +6,22 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows95)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![Tests](https://img.shields.io/badge/tests-85%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
 
-A Windows desktop tool that downloads Bilibili video and audio as **separate streams** — powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), with a modern [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) interface (dark / light / follow system) and built-in workarounds for HTTP 412 anti-bot checks.
+A Windows desktop tool to download Bilibili audio & video — save video and audio as **separate streams** or merge them into a **single file**. Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), with a modern [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) interface (dark / light / follow system). Tested on Windows 11 only.
 
 ## Features
 
 - Downloads the best video and audio streams **separately** (default — no FFmpeg needed), or **merges them into a single file** (FFmpeg required; grab a portable build with one click from the UI, or install it yourself)
 - Quality caps: 480p (default) / 720p / 1080p / best available
-- Modern Chrome headers plus request throttling to get past HTTP 412 anti-bot responses
+- Modern Chrome headers and request throttling for Bilibili endpoints
 - Reads login cookies from Chrome / Edge / Firefox, or a Netscape-format cookies.txt
 - Cancel a download at any time; live progress with speed and ETA
 - Run-log panel; warnings and errors surface in the status bar
-- Common failures (HTTP 412, "No video formats found", locked cookie databases) are translated into plain, actionable guidance
+- Common failures ("No video formats found", locked cookie databases, …) are translated into plain, actionable guidance
 - Remembers your preferences: quality, cookie source, audio/video mode, and theme (stored in `%APPDATA%\bili_dl\settings.json`; the **save location resets on every launch** to the `downloads` folder next to the program — a relative path that travels with the app, temporarily changeable via Browse, and never recorded)
 
-> Note: browser TLS fingerprint impersonation (curl_cffi) ships with the app but is off by default — on Bilibili's current risk control it makes the playurl endpoint return an empty format list. Flip `impersonate` to `True` in code if you ever need it.
+> Note: browser TLS fingerprint impersonation (curl_cffi) ships with the app but is off by default — in testing it makes the playurl endpoint return an empty format list. Flip `impersonate` to `True` in code if you ever need it.
 
 ## Quick start
 
