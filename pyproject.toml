@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bili-dl"
+# 版本单一来源：src/bili_dl/__init__.py 的 __version__
+dynamic = ["version"]
+description = "B站音视频分离下载器：yt-dlp 内核 + CustomTkinter 现代界面，内置 HTTP 412 反爬应对"
+readme = "README.md"
+license = "GPL-2.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Diderde" }]
+keywords = ["bilibili", "yt-dlp", "downloader", "customtkinter"]
+dependencies = [
+    "yt-dlp[default,curl-cffi]",
+    "customtkinter>=6.0.0",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "bili_dl.__version__" }
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+bili-dl = "bili_dl.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# bootstrap.py 是仅用标准库的启动脚本，刻意保持保守写法。
+"bootstrap.py" = ["UP"]
