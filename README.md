@@ -1,4 +1,4 @@
-# B站音视频分离下载器（bili-dl）
+# B站音视频下载工具（bili-dl）
 
 简体中文 | [English](README_EN.md)
 
@@ -6,24 +6,23 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows95)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![Tests](https://img.shields.io/badge/tests-85%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
 
-基于 [yt-dlp](https://github.com/yt-dlp/yt-dlp) 的 B 站**视频流 / 音频流分离下载**工具，内置 HTTP 412 反爬应对，界面使用 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)（深色 / 浅色 / 跟随系统主题）。
+基于 [yt-dlp](https://github.com/yt-dlp/yt-dlp) 的 B 站音视频下载工具：支持将视频与音频**分开保存**或**合并为单文件**，界面使用 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)（深色 / 浅色 / 跟随系统主题）。本项目仅在 Windows 11 上测试过。
 
 ## 特性
 
 - **分离下载**最佳视频流 + 音频流（默认，免 FFmpeg），或选择**合并为单文件**（需 FFmpeg：界面可**一键下载便携版**装到程序目录，也可官网下载或 winget 安装）
 - 画质上限可选：480p（默认）/ 720p / 1080p / 最佳可用
-- 现代 Chrome 请求头 + 请求节流，应对 HTTP 412 反爬
+- 使用现代 Chrome 请求头与请求节流访问 B 站接口
 - 支持读取 Chrome / Edge / Firefox 登录 Cookie，或 Netscape 格式 cookies.txt
 - 下载过程中可随时**取消**；进度条、速度、剩余时间实时显示
 - 运行日志面板，警告与错误自动上浮到状态栏
-- 常见故障（412、No video formats、Cookie 数据库锁定）自动翻译为可操作提示
+- 常见故障（No video formats、Cookie 数据库锁定等）自动翻译为可操作提示
 - 设置自动记忆：画质、Cookie 来源、音视频处理模式、主题（存于 `%APPDATA%\bili_dl\settings.json`；**保存位置每次启动重置**为程序目录下的 `downloads` 子文件夹——相对路径、随程序走，可用「浏览」临时更换且不被记录）
 
-> 说明：浏览器 TLS 指纹模拟（curl_cffi）仍内置，但默认关闭——实测 B 站当前风控下
-> 开启它会导致 playurl 返回空格式列表；如需启用可在代码中把 `impersonate` 置为 `True`。
+> 说明：浏览器 TLS 指纹模拟（curl_cffi）仍内置，但默认关闭——实测开启它会导致
+> playurl 返回空格式列表；如需启用可在代码中把 `impersonate` 置为 `True`。
 
 ## 快速开始（推荐）
 
