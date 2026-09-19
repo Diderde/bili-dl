@@ -93,9 +93,15 @@ class TestSettingsPersistence:
 class TestDownloadFfmpegButton:
     """在真实 mainloop 中以 after 链驱动：跨线程 after 只有在事件循环运行时才可用。"""
 
-    def test_click_runs_job_and_reenables_on_completion(self, app, monkeypatch):
+    def test_click_runs_job_and_reenables_on_completion(self, app, tmp_path, monkeypatch):
         failures: list[str] = []
         job_ran = threading.Event()
+
+        # 不借宿主环境的 FFmpeg：显式构造便携安装，保证任意 runner 上前提一致。
+        portable = tmp_path / "portable"
+        (portable / "bin").mkdir(parents=True)
+        (portable / "bin" / "ffmpeg.exe").write_bytes(b"fake")
+        monkeypatch.setattr(u, "FFMPEG_PORTABLE_DIR", portable)
 
         def fake_job():
             job_ran.set()
