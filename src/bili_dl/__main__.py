@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """命令行入口：python -m bili_dl（或安装后的 bili-dl 命令）。"""
 
 from __future__ import annotations

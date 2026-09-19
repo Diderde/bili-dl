@@ -6,7 +6,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows95)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
+![License](https://img.shields.io/badge/license-GPL--3.0--only-informational)
 
 基于 [yt-dlp](https://github.com/yt-dlp/yt-dlp) 的 B 站音视频下载工具：支持将视频与音频**分开保存**或**合并为单文件**，界面使用 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)（深色 / 浅色 / 跟随系统主题）。本项目仅在 Windows 11 上测试过。
 
@@ -106,4 +106,6 @@ bilibili_downloader/
 
 ## 说明
 
-本项目代码以 [GPL-2.0-or-later](LICENSE) 许可开源：任何修改后再分发的版本必须同样以 GPL-2.0+ 开源并保留版权声明。使用时请遵守 B 站用户协议；下载内容请勿用于商业用途。
+Copyright © 2026 Diderde
+
+本项目代码以 [GPL-3.0-only](LICENSE) 许可开源：任何修改后再分发的版本必须同样以 GPL-3.0-only 许可并保留版权声明。使用本工具下载内容时，请自行遵守 B 站用户协议及相关权利方的条款——该义务针对下载所得的第三方内容，与代码许可证相互独立。

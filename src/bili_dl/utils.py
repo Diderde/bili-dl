@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """纯函数工具：链接归一化、体积格式化、媒体类型与错误信息翻译。"""
 
 from __future__ import annotations

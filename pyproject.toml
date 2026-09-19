@@ -8,7 +8,7 @@ name = "bili-dl"
 dynamic = ["version"]
 description = "B站音视频下载工具：yt-dlp 内核 + CustomTkinter 界面，支持分离保存与合并"
 readme = "README.md"
-license = "GPL-2.0-or-later"
+license = "GPL-3.0-only"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Diderde" }]

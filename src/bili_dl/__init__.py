@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """bili-dl —— B 站音视频分离下载器。"""
 
 from __future__ import annotations

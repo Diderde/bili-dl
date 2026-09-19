@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 """项目常量：链接识别、请求伪装、下载与界面选项。"""
 
 from __future__ import annotations

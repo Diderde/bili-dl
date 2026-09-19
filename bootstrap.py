@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: GPL-3.0-only
 """Bilibili downloader environment bootstrapper (Windows, stdlib only).
 
 Searches for a usable CPython, creates .venv, installs the project in
