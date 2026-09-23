@@ -75,7 +75,7 @@ python -m venv .venv
 | [curl-cffi](https://github.com/lexiforest/curl-cffi) | 浏览器 TLS 指纹模拟能力（默认关闭，备用） | MIT |
 | [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) | 现代化界面组件库 | MIT |
 
-说明：本项目只分发源码，依赖均由用户侧 pip 从 PyPI 安装；`bootstrap.py` 仅在 pip 缺失时从 PyPA 官方地址下载 `get-pip.py`。本项目不内嵌、不修改任何第三方代码。
+说明：本项目只分发源码，依赖均由用户侧 pip 从 PyPI 安装；`bootstrap.py` 仅在 pip 缺失时从 PyPA 官方地址下载 `get-pip.py`。
 
 **可选外部组件**：合并为单文件模式需要 FFmpeg——推荐直接点界面里的「一键下载 FFmpeg」，程序会把便携版下载并解压到程序目录的 `ffmpeg\` 文件夹（无需管理员权限，删除该文件夹即卸载）；也可以从 [FFmpeg 官网](https://ffmpeg.org/download.html) 手动下载或执行 `winget install Gyan.FFmpeg`。默认的分离保存模式无需任何外部组件。
 
