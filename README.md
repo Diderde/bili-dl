@@ -83,8 +83,7 @@ python -m venv .venv
 
 ```powershell
 python -m pip install -e ".[dev]"
-pytest          # 运行单元测试（不访问网络）
-ruff check .    # 代码风格检查
+pytest          # 运行单元测试
 ```
 
 ## 项目结构
