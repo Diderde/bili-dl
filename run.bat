@@ -2,6 +2,10 @@
 setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
+
+rem Success by default; every launcher branch below only flips RC to 1 on failure.
+rem Do not use %ERRORLEVEL% inside parenthesised blocks: cmd expands it at parse time.
+set "RC=0"
 title B站下载器 (bili-dl) - 环境检查与依赖检查
 
 echo ============================================================
@@ -29,21 +33,21 @@ rem bootstrap.py re-scans all usable Pythons itself before creating the venv.
 where py.exe >nul 2>nul
 if not errorlevel 1 (
     py -3 "%BOOTSTRAP%"
-    set "RC=%ERRORLEVEL%"
+    if errorlevel 1 set "RC=1"
     goto :finish
 )
 
 where python.exe >nul 2>nul
 if not errorlevel 1 (
     python "%BOOTSTRAP%"
-    set "RC=%ERRORLEVEL%"
+    if errorlevel 1 set "RC=1"
     goto :finish
 )
 
 where python3.exe >nul 2>nul
 if not errorlevel 1 (
     python3 "%BOOTSTRAP%"
-    set "RC=%ERRORLEVEL%"
+    if errorlevel 1 set "RC=1"
     goto :finish
 )
 
@@ -63,7 +67,7 @@ for %%P in (
 ) do (
     if exist "%%~P" (
         "%%~P" "%BOOTSTRAP%"
-        set "RC=%ERRORLEVEL%"
+        if errorlevel 1 set "RC=1"
         goto :finish
     )
 )

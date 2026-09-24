@@ -17,29 +17,29 @@
 - 使用现代 Chrome 请求头与请求节流访问 B 站接口
 - 支持读取 Chrome / Edge / Firefox 登录 Cookie，或 Netscape 格式 cookies.txt
 - 下载过程中可随时**取消**；进度条、速度、剩余时间实时显示
-- 运行日志面板，警告与错误自动上浮到状态栏
+- 运行日志面板：警告与错误以 `[警告]` / `[错误]` 前缀记入日志，下载失败时弹窗并同步状态栏
 - 常见故障（No video formats、Cookie 数据库锁定等）自动翻译为可操作提示
-- 设置自动记忆：画质、Cookie 来源、音视频处理模式、主题（存于 `%APPDATA%\bili_dl\settings.json`；**保存位置每次启动重置**为程序目录下的 `downloads` 子文件夹——相对路径、随程序走，可用「浏览」临时更换且不被记录）
+- 设置自动记忆：画质、Cookie 来源、音视频处理模式、主题（存于 `%APPDATA%\bili_dl\settings.json`；**保存位置每次启动重置**为程序工作目录下的 `downloads` 子文件夹——相对路径、随程序走，可用「浏览」临时更换且不被记录）
 
 > 说明：浏览器 TLS 指纹模拟（curl_cffi）仍内置，但默认关闭——实测开启它会导致
 > playurl 返回空格式列表；如需启用可在代码中把 `impersonate` 置为 `True`。
 
 ## 快速开始（推荐）
 
-1. 保证 `run.bat`、`bootstrap.py`、`src/` 在同一目录。
+1. 保证 `run.bat`、`bootstrap.py`、`pyproject.toml` 与 `src/` 在同一目录。
 2. 双击 `run.bat`。启动器先输出**环境与依赖检查清单**（Python / tkinter / yt-dlp / curl_cffi / customtkinter / bili_dl，以及可选的 ffmpeg）：全绿则顺手把 yt-dlp 更新到 nightly 并启动；缺项则自动重建环境后再次出清单。
 3. 检查与安装详情保存在 `environment_report.txt`。
 
 ## 手动安装
 
 ```powershell
-cd bilibili_downloader
+cd bili-dl
 python -m venv .venv
 .venv\Scripts\python -m pip install -e .
 .venv\Scripts\python -m bili_dl
 ```
 
-安装后也可直接使用 `bili-dl` 命令启动。
+安装后也可直接使用 `bili-dl` 命令启动（此时保存位置取当前工作目录；用 `run.bat` 启动则固定为程序所在文件夹）。
 
 ## 使用说明
 
@@ -77,7 +77,7 @@ python -m venv .venv
 
 说明：本项目只分发源码，依赖均由用户侧 pip 从 PyPI 安装；`bootstrap.py` 仅在 pip 缺失时从 PyPA 官方地址下载 `get-pip.py`。
 
-**可选外部组件**：合并为单文件模式需要 FFmpeg——推荐直接点界面里的「一键下载 FFmpeg」，程序会把便携版下载并解压到程序目录的 `ffmpeg\` 文件夹（无需管理员权限，删除该文件夹即卸载）；也可以从 [FFmpeg 官网](https://ffmpeg.org/download.html) 手动下载或执行 `winget install Gyan.FFmpeg`。默认的分离保存模式无需任何外部组件。
+**可选外部组件**：合并为单文件模式需要 FFmpeg——推荐直接点界面里的「一键下载 FFmpeg」，程序会把便携版下载并解压到程序工作目录的 `ffmpeg\` 文件夹（无需管理员权限，删除该文件夹即卸载）；也可以从 [FFmpeg 官网](https://ffmpeg.org/download.html) 手动下载或执行 `winget install Gyan.FFmpeg`。默认的分离保存模式无需任何外部组件。
 
 ## 开发
 
@@ -90,10 +90,12 @@ ruff check .    # 代码风格检查
 ## 项目结构
 
 ```
-bilibili_downloader/
+bili-dl/
 ├── run.bat                  # 一键启动入口
 ├── bootstrap.py             # 环境自举：搜 Python、建 venv、装依赖（仅标准库）
 ├── pyproject.toml           # 打包与工具链配置
+├── requirements.txt         # 手动安装依赖（等价于 pip install -e .）
+├── .gitattributes           # 行尾策略：文本文件统一 CRLF
 ├── src/bili_dl/
 │   ├── __main__.py          # python -m bili_dl 入口
 │   ├── gui.py               # CustomTkinter 界面
@@ -103,6 +105,14 @@ bilibili_downloader/
 │   └── constants.py         # 常量：请求头、画质/Cookie 选项等
 └── tests/                   # 单元测试
 ```
+
+## 免责声明
+
+- 本工具**仅供参考学习**，请遵守哔哩哔哩的官方规则（[用户协议](https://www.bilibili.com/protocol/)、社区规范）以及内容权利方的要求。
+- 请仅用于个人学习、技术研究与备份你已获授权访问的内容；**不得用于商业用途**，也不得用于大规模批量抓取或对站方接口造成压力的行为。
+- 下载所得的音频、视频等内容的著作权归原作者及相关权利人所有，请勿传播、二次分发或用于任何侵权用途。
+- 本项目与哔哩哔哩官方无任何关联，未获得其授权、认可或赞助。
+- 使用本工具所产生的一切后果由使用者自行承担；请同时遵守你所在地区的法律法规。
 
 ## 说明
 

@@ -5,8 +5,13 @@ __pycache__/
 build/
 dist/
 
+# 工具缓存
+.pytest_cache/
+.ruff_cache/
+
 # 虚拟环境
 .venv/
+.venv.bak/
 
 # 运行时产物
 environment_report.txt

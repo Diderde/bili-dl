@@ -6,39 +6,39 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows95)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![License](https://img.shields.io/badge/license-GPL--2.0--or--later-informational)
+![License](https://img.shields.io/badge/license-GPL--3.0--only-informational)
 
 A Windows desktop tool to download Bilibili audio & video — save video and audio as **separate streams** or merge them into a **single file**. Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), with a [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) interface (dark / light / follow system). Tested on Windows 11 only.
 
 ## Features
 
-- Downloads the best video and audio streams **separately** (default — no FFmpeg needed), or **merges them into a single file** (FFmpeg required; grab a portable build with one click from the UI, or install it yourself)
+- Downloads the best video and audio streams **separately** (default — no FFmpeg needed), or **merges them into a single file** (FFmpeg required; grab a portable build with one click from the UI, or install it from the FFmpeg website or with winget)
 - Quality caps: 480p (default) / 720p / 1080p / best available
 - Modern Chrome headers and request throttling for Bilibili endpoints
 - Reads login cookies from Chrome / Edge / Firefox, or a Netscape-format cookies.txt
 - Cancel a download at any time; live progress with speed and ETA
-- Run-log panel; warnings and errors surface in the status bar
+- Run-log panel: warnings and errors are logged with `[警告]` / `[错误]` prefixes, and a failure pops up a dialog and updates the status bar
 - Common failures ("No video formats found", locked cookie databases, …) are translated into plain, actionable guidance
-- Remembers your preferences: quality, cookie source, audio/video mode, and theme (stored in `%APPDATA%\bili_dl\settings.json`; the **save location resets on every launch** to the `downloads` folder next to the program — a relative path that travels with the app, temporarily changeable via Browse, and never recorded)
+- Remembers your preferences: quality, cookie source, audio/video mode, and theme (stored in `%APPDATA%\bili_dl\settings.json`; the **save location resets on every launch** to the `downloads` folder under the program's working directory — a relative path that travels with the app, temporarily changeable via Browse, and never recorded)
 
 > Note: browser TLS fingerprint impersonation (curl_cffi) ships with the app but is off by default — in testing it makes the playurl endpoint return an empty format list. Flip `impersonate` to `True` in code if you ever need it.
 
 ## Quick start
 
-1. Keep `run.bat`, `bootstrap.py` and `src/` in the same folder.
+1. Keep `run.bat`, `bootstrap.py`, `pyproject.toml` and `src/` in the same folder.
 2. Double-click `run.bat`. The launcher first prints an **environment & dependency checklist** (Python / tkinter / yt-dlp / curl_cffi / customtkinter / bili_dl, plus optional ffmpeg): if everything is green it bumps yt-dlp to the nightly build and starts the app; anything missing triggers an automatic rebuild, then the checklist runs again.
 3. Details are saved to `environment_report.txt`.
 
 ## Manual installation
 
 ```powershell
-cd bilibili_downloader
+cd bili-dl
 python -m venv .venv
 .venv\Scripts\python -m pip install -e .
 .venv\Scripts\python -m bili_dl
 ```
 
-Once installed, the `bili-dl` command works too.
+Once installed, the `bili-dl` command works too (it then saves to the current working directory; launching through `run.bat` always uses the program's own folder).
 
 ## Usage
 
@@ -84,15 +84,17 @@ Direct dependencies (everything else resolves through pip; each component keeps 
 
 This project ships source code only — dependencies are installed from PyPI on the user's side, and `bootstrap.py` fetches `get-pip.py` from the official PyPA endpoint only when pip is missing. No third-party code is bundled or modified.
 
-**Optional external component**: merging requires FFmpeg — the easiest way is the in-app one-click download, which installs a portable build into the program folder's `ffmpeg\` directory (no admin rights; delete the folder to uninstall). You can also grab it from the [FFmpeg website](https://ffmpeg.org/download.html) or run `winget install Gyan.FFmpeg`. The default separate mode needs none of this.
+**Optional external component**: merging requires FFmpeg — the easiest way is the in-app one-click download, which installs a portable build into the `ffmpeg\` folder under the program's working directory (no admin rights; delete the folder to uninstall). You can also grab it from the [FFmpeg website](https://ffmpeg.org/download.html) or run `winget install Gyan.FFmpeg`. The default separate mode needs none of this.
 
 ## Project structure
 
 ```
-bilibili_downloader/
+bili-dl/
 ├── run.bat                  # one-click launcher
 ├── bootstrap.py             # environment bootstrap (stdlib only)
 ├── pyproject.toml           # packaging & tooling config
+├── requirements.txt         # manual install (equivalent to pip install -e .)
+├── .gitattributes           # line-ending policy: CRLF for text files
 ├── src/bili_dl/
 │   ├── __main__.py          # python -m bili_dl entry point
 │   ├── gui.py               # CustomTkinter interface
@@ -103,6 +105,16 @@ bilibili_downloader/
 └── tests/                   # unit tests
 ```
 
+## Disclaimer
+
+- This tool is **for reference and learning purposes only**. Follow Bilibili's official rules (its [Terms of Service](https://www.bilibili.com/protocol/) and community guidelines) as well as any requirements set by rights holders.
+- Use it only for personal study, technical research, and backing up content you are authorized to access. **Commercial use is not permitted**, nor is bulk scraping or any behaviour that strains the site's endpoints.
+- Copyright in downloaded audio and video belongs to the original creators and the relevant rights holders. Do not redistribute it or use it for any infringing purpose.
+- This project is not affiliated with, endorsed by, or sponsored by Bilibili.
+- You are solely responsible for any consequences of using this tool, and for complying with the laws of your jurisdiction.
+
 ## Notes
 
-This project is open source under [GPL-2.0-or-later](LICENSE): any redistributed derivative must likewise be licensed GPL-2.0-or-later with the copyright notice intact. Please follow Bilibili's Terms of Service, and do not use downloaded content for commercial purposes.
+Copyright © 2026 Diderde
+
+This project is open source under [GPL-3.0-only](LICENSE): any redistributed derivative must likewise be licensed GPL-3.0-only with the copyright notice intact. When you download content with this tool, you are responsible for following Bilibili's Terms of Service and the terms of the relevant rights holders — that obligation concerns the third-party content you download and is independent of the code license.

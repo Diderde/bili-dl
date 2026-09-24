@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """用户设置持久化：JSON 存于 %APPDATA%/bili_dl，损坏时静默回退默认值。"""
 
@@ -18,8 +19,9 @@ SETTINGS_DIR = Path(os.environ.get("APPDATA") or Path.home()) / "bili_dl"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
 
 DEFAULTS: dict[str, str] = {
-    # 注意：保存位置不持久化——每次启动重置为程序目录下的 downloads
-    # 子文件夹（见 utils.default_save_dir），设置文件中不记录任何本机路径。
+    # 注意：保存位置不持久化——每次启动重置为程序工作目录下的 downloads
+    # 子文件夹（见 utils.default_save_dir），因此这里没有 save_dir 键。
+    # cookie_file 例外：它是用户显式选择的 cookies.txt 绝对路径，需要记住。
     "quality": DEFAULT_QUALITY,
     "browser": DEFAULT_BROWSER,
     "cookie_file": "",

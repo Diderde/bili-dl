@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """基于 CustomTkinter 的现代化图形界面。"""
 
@@ -24,6 +25,7 @@ from bili_dl.constants import (
     DEFAULT_DOWNLOAD_MODE,
     DEFAULT_QUALITY,
     DOWNLOAD_MODES,
+    FFMPEG_BUTTON_TEXT,
     MODE_MERGE,
     QUALITY_CHOICES,
 )
@@ -109,7 +111,8 @@ class BiliDlApp(ctk.CTk):
         self.font_mono = ctk.CTkFont(family="Consolas", size=12)
 
         self.url_var = ctk.StringVar()
-        # 保存位置每次启动归零为程序目录下的 downloads 子文件夹，不读取历史设置。
+        # 保存位置每次启动归零为程序工作目录下的 downloads 子文件夹
+        # （run.bat 启动时工作目录即程序所在文件夹），不读取历史设置。
         self.save_var = ctk.StringVar(value=str(default_save_dir()))
         self.cookie_var = ctk.StringVar(value=self._settings.get("cookie_file", ""))
         self.status_var = ctk.StringVar(value="粘贴 BV 号或链接后开始下载。")
@@ -244,7 +247,7 @@ class BiliDlApp(ctk.CTk):
         self.ffmpeg_hint.pack(side="left")
         self.ffmpeg_dl_btn = ctk.CTkButton(
             ffmpeg_row,
-            text="一键下载 FFmpeg",
+            text=FFMPEG_BUTTON_TEXT,
             width=130,
             height=26,
             font=self.font_hint,
@@ -412,10 +415,12 @@ class BiliDlApp(ctk.CTk):
                 return_code, stderr_tail = run_curl(zip_path, with_revoke_flag=True)
                 if return_code != 0 and "unknown option" in stderr_tail.lower():
                     # OpenSSL 版 curl 不认识 --ssl-no-revoke，降级重试。
-                    self._append_log("info", "当前 curl 不支持 --ssl-no-revoke，改用标准参数重试……")
+                    self._marshal(
+                        self._append_log, "info", "当前 curl 不支持 --ssl-no-revoke，改用标准参数重试……"
+                    )
                     return_code, stderr_tail = run_curl(zip_path, with_revoke_flag=False)
                 if return_code != 0 or not zip_path.is_file():
-                    self._append_log("error", f"curl 退出码 {return_code}：{stderr_tail}")
+                    self._marshal(self._append_log, "error", f"curl 退出码 {return_code}：{stderr_tail}")
                     raise RuntimeError(
                         "FFmpeg 下载失败（网络或加速器原因），可改用官网下载页或 winget 命令。"
                     )
@@ -586,7 +591,9 @@ class BiliDlApp(ctk.CTk):
             traceback.print_exc()
             self._marshal(self._on_failed, clean_error_message(_format_exception(exc)))
         else:
-            self._marshal(self._on_success, str(engine.request.save_dir), files)
+            self._marshal(
+                self._on_success, str(engine.request.save_dir), files, engine.request.merge
+            )
 
     # ---------------------------------------------------------- 状态回调
 
@@ -601,11 +608,14 @@ class BiliDlApp(ctk.CTk):
         if not busy:
             self._engine = None
 
-    def _on_success(self, save_dir: str, files: list[str]) -> None:
+    def _on_success(self, save_dir: str, files: list[str], merged: bool = False) -> None:
         self._set_busy(False)
         self.progress_bar.set(1.0)
         self.percent_label.configure(text="100%")
-        self.status_var.set("下载完成：视频流与音频流已分别保存。")
+        # 合并模式（含 "/b" 兜底选中单文件格式）的产物只有一个文件，文案要跟着模式走。
+        self.status_var.set(
+            "下载完成：已保存为单个文件。" if merged else "下载完成：视频流与音频流已分别保存。"
+        )
         self._append_log(
             "info",
             "下载完成：" + ("、".join(Path(f).name for f in files) or "（未取得文件名）"),
