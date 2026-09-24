@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """纯函数工具：链接归一化、体积格式化、媒体类型与错误信息翻译。"""
 
@@ -10,7 +11,7 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
 
-from bili_dl.constants import ALLOWED_HOSTS, AV_PATTERN, BV_PATTERN
+from bili_dl.constants import ALLOWED_HOSTS, AV_PATTERN, BV_PATTERN, FFMPEG_BUTTON_TEXT
 
 
 def default_save_dir() -> Path:
@@ -39,6 +40,10 @@ def install_ffmpeg_from_zip(zip_path: Path, target_dir: Path = FFMPEG_PORTABLE_D
 
     Gyan.FD 构建的 zip 内部结构为 ffmpeg-x.y.z-essentials_build/bin/ffmpeg.exe，
     此处递归定位 bin 目录后整体复制，随附的 DLL 一并保留。
+
+    target_dir 会被整体替换，因此只允许覆盖「本程序安装的」便携目录：
+    若该目录已存在却不像便携安装（例如用户自己的 ffmpeg 构建目录），直接拒绝，
+    避免把无关内容删掉（删除不进回收站）。
     """
     with zipfile.ZipFile(zip_path) as archive:
         bin_dirs = {
@@ -56,6 +61,14 @@ def install_ffmpeg_from_zip(zip_path: Path, target_dir: Path = FFMPEG_PORTABLE_D
                     raise ValueError(f"zip 条目路径异常，已中止解压：{name}")
             archive.extractall(tmp)
             extracted = Path(tmp) / src_bin
+            # 只整体替换「本程序安装的」便携目录：目标已存在却不像便携安装时
+            # 拒绝 rmtree（删除不进回收站，那儿可能是用户自己的 ffmpeg 目录）。
+            if target_dir.exists() and not (target_dir / "bin" / "ffmpeg.exe").is_file():
+                raise ValueError(
+                    "目标目录已存在且不是本程序安装的便携 FFmpeg，为避免误删已中止安装：\n"
+                    f"{target_dir}\n\n"
+                    "请先手动删除或改名该目录，再重新点击「一键下载 FFmpeg」。"
+                )
             shutil.rmtree(target_dir, ignore_errors=True)
             shutil.copytree(extracted, target_dir / "bin")
     if not (target_dir / "bin" / "ffmpeg.exe").is_file():
@@ -131,7 +144,7 @@ def clean_error_message(message: str) -> str:
     if "ffmpeg" in lowered and ("not installed" in lowered or "not found" in lowered):
         return (
             "合并模式需要 FFmpeg，但系统未检测到它。\n\n"
-            "1. 关闭本提示，点击界面中的「FFmpeg 下载」链接；\n"
+            f"1. 关闭本提示，点击界面中的「{FFMPEG_BUTTON_TEXT}」按钮；\n"
             "2. 或复制界面上的 winget 命令安装：winget install Gyan.FFmpeg；\n"
             "3. 装好后点「重新检测」；\n"
             "4. 或改用「分离保存」模式（默认，无需 FFmpeg）。\n\n"

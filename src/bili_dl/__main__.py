@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """命令行入口：python -m bili_dl（或安装后的 bili-dl 命令）。"""
 

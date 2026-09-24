@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """设置持久化的单元测试（使用临时目录，不触碰真实 %APPDATA%）。"""
 
 from __future__ import annotations

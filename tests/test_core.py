@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """下载核心的单元测试：选项构造与取消机制（不访问网络）。"""
 
 from __future__ import annotations
@@ -45,8 +47,9 @@ class TestBuildYdlOptions:
 
     def test_output_template(self, tmp_path):
         options = build_ydl_options(make_request(tmp_path))
-        assert OUTPUT_TEMPLATE in options["outtmpl"]
-        assert str(tmp_path) in options["outtmpl"]
+        # 目录走 paths.home，模板本身保持纯净：目录名里的 % 不会被 yt-dlp 当变量展开。
+        assert options["outtmpl"] == OUTPUT_TEMPLATE
+        assert options["paths"]["home"] == str(tmp_path)
 
     def test_cookie_file_wins_over_browser(self, tmp_path):
         options = build_ydl_options(
@@ -78,6 +81,24 @@ class TestBuildYdlOptions:
         options = build_ydl_options(make_request(tmp_path))
         assert options["format"] == "bv,ba"
         assert "merge_output_format" not in options
+
+    def test_merge_registers_postprocessor_hook(self, tmp_path):
+        """合并后的最终文件名靠后处理钩子上报，这个钩子必须挂上。"""
+
+        def hook(_data):
+            return None
+
+        options = build_ydl_options(make_request(tmp_path, merge=True), postprocessor_hook=hook)
+        assert options["postprocessor_hooks"] == [hook]
+
+    def test_separate_mode_registers_no_postprocessor_hook(self, tmp_path):
+        """分离模式没有合并这一步，不应挂后处理钩子。"""
+
+        def hook(_data):
+            return None
+
+        options = build_ydl_options(make_request(tmp_path), postprocessor_hook=hook)
+        assert "postprocessor_hooks" not in options
 
     def test_headers_not_shared_between_calls(self, tmp_path):
         first = build_ydl_options(make_request(tmp_path))
@@ -213,3 +234,45 @@ class TestCancellation:
         monkeypatch.setattr(core.yt_dlp, "YoutubeDL", FakeYDL)
         core.DownloadEngine(make_request(tmp_path, merge=True)).run()
         assert captured["ffmpeg_location"] == str(bin_dir)
+
+
+class TestRunErrorMapping:
+    """异常映射：现场最常见的是「取消过程中 yt-dlp 抛 DownloadError」。"""
+
+    @staticmethod
+    def _fake_ydl(behaviour):
+        class FakeYDL:
+            def __init__(self, opts):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def download(self, urls):
+                return behaviour()
+
+        return FakeYDL
+
+    def test_download_error_while_cancelled_maps_to_cancel(self, tmp_path, monkeypatch):
+        from bili_dl import core
+
+        engine = DownloadEngine(make_request(tmp_path))
+
+        def behaviour():
+            engine.cancel()
+            raise core.DownloadError("用户取消造成的下载中断")
+
+        monkeypatch.setattr(core.yt_dlp, "YoutubeDL", self._fake_ydl(behaviour))
+        with pytest.raises(DownloadCancelledByUser):
+            engine.run()
+
+    def test_nonzero_result_code_raises_runtime_error(self, tmp_path, monkeypatch):
+        from bili_dl import core
+
+        monkeypatch.setattr(core.yt_dlp, "YoutubeDL", self._fake_ydl(lambda: 1))
+        engine = DownloadEngine(make_request(tmp_path))
+        with pytest.raises(RuntimeError, match="错误码 1"):
+            engine.run()

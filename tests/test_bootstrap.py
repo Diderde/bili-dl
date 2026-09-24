@@ -1,8 +1,11 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """bootstrap.py 环境与依赖检查函数的单元测试。"""
 
 from __future__ import annotations
 
 import json
+import subprocess as real_subprocess
 
 import bootstrap
 
@@ -11,6 +14,23 @@ class FakeCompleted:
     def __init__(self, stdout: str) -> None:
         self.stdout = stdout
         self.returncode = 0
+
+
+class StubSubprocess:
+    """只替换 run()，其余属性（PIPE / STDOUT 等常量）仍取真正的 subprocess 模块。
+
+    直接替换标准库 subprocess 模块的同名函数会波及同进程里所有使用者；
+    这里换成只属于本测试的替身对象，monkeypatch 也只挂 bootstrap 的引用。
+    """
+
+    def __init__(self, completed: FakeCompleted) -> None:
+        self._completed = completed
+
+    def run(self, *args, **kwargs) -> FakeCompleted:
+        return self._completed
+
+    def __getattr__(self, name: str):
+        return getattr(real_subprocess, name)
 
 
 def _fake_report(**overrides) -> dict:
@@ -29,25 +49,25 @@ def _fake_report(**overrides) -> dict:
 class TestCheckDependencies:
     def test_all_ok(self, monkeypatch):
         payload = json.dumps(_fake_report())
-        monkeypatch.setattr(bootstrap.subprocess, "run", lambda *a, **k: FakeCompleted(payload))
+        monkeypatch.setattr(bootstrap, "subprocess", StubSubprocess(FakeCompleted(payload)))
         ok, report = bootstrap.check_dependencies("py")
         assert ok is True
         assert report["bili_dl"] == "1.0.0"
 
     def test_missing_component_fails(self, monkeypatch):
         payload = json.dumps(_fake_report(curl_cffi=None))
-        monkeypatch.setattr(bootstrap.subprocess, "run", lambda *a, **k: FakeCompleted(payload))
+        monkeypatch.setattr(bootstrap, "subprocess", StubSubprocess(FakeCompleted(payload)))
         ok, report = bootstrap.check_dependencies("py")
         assert ok is False
         assert report["curl_cffi"] is None
 
     def test_no_tkinter_fails(self, monkeypatch):
         payload = json.dumps(_fake_report(tkinter=False))
-        monkeypatch.setattr(bootstrap.subprocess, "run", lambda *a, **k: FakeCompleted(payload))
+        monkeypatch.setattr(bootstrap, "subprocess", StubSubprocess(FakeCompleted(payload)))
         assert bootstrap.check_dependencies("py")[0] is False
 
     def test_unparseable_output_degrades(self, monkeypatch):
-        monkeypatch.setattr(bootstrap.subprocess, "run", lambda *a, **k: FakeCompleted("boom"))
+        monkeypatch.setattr(bootstrap, "subprocess", StubSubprocess(FakeCompleted("boom")))
         ok, report = bootstrap.check_dependencies("py")
         assert ok is False
         assert report == {}
@@ -95,3 +115,32 @@ class TestCompatible:
         )
         assert ok is True
         assert reason == ""
+
+
+class TestPrepareWithKeepsOldEnv:
+    """重建失败时不能把用户原有的 .venv 弄丢（删除不进回收站）。"""
+
+    def test_restores_backup_when_rebuild_fails(self, tmp_path, monkeypatch):
+        venv = tmp_path / ".venv"
+        (venv / "Scripts").mkdir(parents=True)
+        (venv / "Scripts" / "python.exe").write_bytes(b"old-env")
+
+        monkeypatch.setattr(bootstrap, "VENV", venv)
+        monkeypatch.setattr(bootstrap, "REPORT", tmp_path / "report.txt")  # 别写到项目目录
+
+        def failing_venv_create(command, timeout=300):
+            # 模拟「创建 .venv 失败」：真环境已被改名备份。
+            assert not venv.exists()
+            raise RuntimeError("模拟断网：创建 .venv 失败")
+
+        monkeypatch.setattr(bootstrap, "run_step", failing_venv_create)
+
+        try:
+            bootstrap.prepare_with("py")
+        except RuntimeError as error:
+            assert "创建 .venv 失败" in str(error)
+        else:
+            raise AssertionError("prepare_with 应当把失败抛出去")
+
+        assert (venv / "Scripts" / "python.exe").is_file()  # 原环境被放回来了
+        assert not (tmp_path / ".venv.bak").exists()

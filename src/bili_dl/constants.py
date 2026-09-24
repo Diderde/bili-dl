@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """项目常量：链接识别、请求伪装、下载与界面选项。"""
 
@@ -60,6 +61,9 @@ MODE_SEPARATE = "分离保存（默认，免 FFmpeg）"
 MODE_MERGE = "合并为单文件（需已安装 FFmpeg）"
 DOWNLOAD_MODES = (MODE_SEPARATE, MODE_MERGE)
 DEFAULT_DOWNLOAD_MODE = MODE_SEPARATE
+
+# 界面按钮文本：报错指引与按钮共用同一常量，避免两处文案各自漂移。
+FFMPEG_BUTTON_TEXT = "一键下载 FFmpeg"
 
 APPEARANCE_CHOICES = ("深色", "浅色", "跟随系统")
 DEFAULT_APPEARANCE = "深色"

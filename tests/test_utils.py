@@ -1,9 +1,12 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """bili_dl.utils 纯函数的单元测试（不访问网络）。"""
 
 from __future__ import annotations
 
 import pytest
 
+from bili_dl.constants import FFMPEG_BUTTON_TEXT
 from bili_dl.utils import (
     clean_error_message,
     default_save_dir,
@@ -117,6 +120,8 @@ class TestCleanErrorMessage:
         )
         assert "FFmpeg" in message
         assert "分离保存" in message
+        # 指引必须点名界面上真实存在的按钮，而不是一个早已改名的控件。
+        assert FFMPEG_BUTTON_TEXT in message
 
     def test_network_timeout_error(self):
         message = clean_error_message(

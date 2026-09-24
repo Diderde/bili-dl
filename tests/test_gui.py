@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """GUI 层单元测试：以桩替换弹窗与网络，驱动真实窗口验证交互逻辑。"""
 
 from __future__ import annotations
@@ -33,12 +35,38 @@ class _SilentBox:
 def app():
     """模块级共享一个窗口：同进程反复创建/销毁 CTk 根窗口会导致 tk.tcl 定位失败。"""
     ctk.set_default_color_theme("blue")
+    original_box = g.messagebox
     g.messagebox = _SilentBox
     _SilentBox.calls = []
     instance = g.BiliDlApp()
     instance.withdraw()
     yield instance
     instance.destroy()
+    g.messagebox = original_box  # 别把弹窗桩泄漏给同一进程里的其它测试
+
+
+class TestUiStateRestoration:
+    """失败/取消后界面必须恢复可用：只测完成路径会漏掉这几处状态复位。"""
+
+    def test_failed_reenables_ui_and_clears_engine(self, app):
+        app._set_busy(True)
+        app._on_failed("boom")
+        assert app.start_btn.cget("state") == "normal"
+        assert app.cancel_btn.cget("state") == "disabled"
+        assert app._engine is None
+        assert app.percent_label.cget("text") == "0.0%"
+
+    def test_cancelled_reenables_ui_and_clears_engine(self, app):
+        app._set_busy(True)
+        app._on_cancelled()
+        assert app.start_btn.cget("state") == "normal"
+        assert app.cancel_btn.cget("state") == "disabled"
+        assert app._engine is None
+
+    def test_progress_updates_bar_and_label(self, app):
+        app._on_engine_progress(42.5, "正在下载视频流（1/2）：42.5%")
+        assert abs(app.progress_bar.get() - 0.425) < 1e-9
+        assert app.percent_label.cget("text") == "42.5%"
 
 
 @pytest.fixture()
@@ -90,6 +118,42 @@ class TestSettingsPersistence:
         assert "save_dir" not in saved[-1]
 
 
+class TestSuccessStatusText:
+    """完成文案要跟着音视频处理模式走：合并模式只产出一个文件。"""
+
+    def test_merge_mode_reports_single_file(self, app, tmp_path):
+        app._on_success(str(tmp_path), [str(tmp_path / "out.mp4")], True)
+        assert "已保存为单个文件" in app.status_var.get()
+
+    def test_separate_mode_reports_two_streams(self, app, tmp_path):
+        files = [str(tmp_path / "video.m4s"), str(tmp_path / "audio.m4s")]
+        app._on_success(str(tmp_path), files, False)
+        assert "分别保存" in app.status_var.get()
+
+    def test_run_engine_passes_merge_flag_to_success(self, app, tmp_path, monkeypatch):
+        """接线检查：合并标志必须由引擎传到完成回调，否则文案会退回「分别保存」。"""
+        from bili_dl.core import DownloadRequest
+
+        seen: list[tuple] = []
+        monkeypatch.setattr(app, "_marshal", lambda func, *args: seen.append((func, args)))
+
+        class StubEngine:
+            def __init__(self):
+                self.request = DownloadRequest(
+                    url="https://www.bilibili.com/video/BV1xjNq67eWt",
+                    save_dir=tmp_path,
+                    merge=True,
+                )
+
+            def run(self):
+                return ["out.mp4"]
+
+        app._run_engine(StubEngine())
+
+        assert seen and seen[-1][0] == app._on_success
+        assert seen[-1][1][-1] is True
+
+
 class TestDownloadFfmpegButton:
     """在真实 mainloop 中以 after 链驱动：跨线程 after 只有在事件循环运行时才可用。"""
 
@@ -109,6 +173,11 @@ class TestDownloadFfmpegButton:
 
         monkeypatch.setattr(app, "_ffmpeg_job", fake_job)
 
+        def finish():
+            # 看门狗必须撤销：留到下一个 mainloop 测试里开火会给出假的「超时」。
+            app.after_cancel(watchdog_id)
+            app.quit()
+
         def poll():
             if app._ffmpeg_job_running:
                 app.after(50, poll)
@@ -117,13 +186,13 @@ class TestDownloadFfmpegButton:
                 failures.append("完成后按钮未恢复")
             if "已检测到" not in app.ffmpeg_hint.cget("text"):
                 failures.append("完成后未自动重检测")
-            app.quit()
+            finish()
 
         def driver():
             app._download_ffmpeg_clicked()
             if not app._ffmpeg_job_running:
                 failures.append("点击后未进入运行状态")
-                app.quit()
+                finish()
                 return
             app.after(50, poll)
 
@@ -132,7 +201,7 @@ class TestDownloadFfmpegButton:
             app.quit()
 
         app.after(50, driver)
-        app.after(20000, watchdog)
+        watchdog_id = app.after(20000, watchdog)
         app.mainloop()
         assert job_ran.is_set()
         assert not failures, failures
@@ -155,6 +224,10 @@ class TestDownloadFfmpegButton:
             app._download_ffmpeg_clicked()  # 作业中再次点击应被守卫拦截
             release.set()
 
+        def finish():
+            app.after_cancel(watchdog_id)
+            app.quit()
+
         def driver():
             app._download_ffmpeg_clicked()
 
@@ -168,7 +241,7 @@ class TestDownloadFfmpegButton:
                         else:
                             if "normal" not in str(app.ffmpeg_dl_btn.cget("state")):
                                 failures.append("完成后按钮未恢复")
-                            app.quit()
+                            finish()
 
                     app.after(50, poll_done)
                 else:
@@ -181,6 +254,6 @@ class TestDownloadFfmpegButton:
             app.quit()
 
         app.after(50, driver)
-        app.after(25000, watchdog)
+        watchdog_id = app.after(25000, watchdog)
         app.mainloop()
         assert not failures, failures

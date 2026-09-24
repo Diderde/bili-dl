@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Diderde
 # SPDX-License-Identifier: GPL-3.0-only
 """下载核心：组装 yt-dlp 选项并执行下载。
 
@@ -6,7 +7,6 @@
 
 from __future__ import annotations
 
-import os
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -15,6 +15,7 @@ from pathlib import Path
 from bili_dl.constants import (
     DEFAULT_QUALITY,
     FALLBACK_QUALITY_SORT,
+    FFMPEG_BUTTON_TEXT,
     HTTP_HEADERS,
     OUTPUT_TEMPLATE,
     QUALITY_CHOICES,
@@ -74,7 +75,7 @@ class DownloadRequest:
 
 
 class YtdlpLoggerBridge:
-    """把 yt-dlp 日志转发到回调：debug 静默，info 记录，warning/error 上浮。"""
+    """把 yt-dlp 日志转发到回调：debug 静默，其余按级别记入运行日志。"""
 
     def __init__(self, on_log: LogCallback | None) -> None:
         self._on_log = on_log
@@ -108,7 +109,10 @@ def build_ydl_options(
     options: dict = {
         "format": format_spec,
         "format_sort": list(QUALITY_CHOICES.get(request.quality_label, FALLBACK_QUALITY_SORT)),
-        "outtmpl": os.path.join(str(request.save_dir), OUTPUT_TEMPLATE),
+        # 保存目录交给 yt-dlp 的 paths.home，而不是拼进 outtmpl：
+        # 整条模板会被 yt-dlp 做 % 变量展开，目录名里的 % 会被误当成变量。
+        "paths": {"home": str(request.save_dir)},
+        "outtmpl": OUTPUT_TEMPLATE,
         "noplaylist": True,
         "ignoreerrors": False,
         "abort_on_error": True,
@@ -181,10 +185,12 @@ class DownloadEngine:
 
     def run(self) -> list[str]:
         """阻塞执行下载；成功返回已保存文件路径列表，取消/失败抛异常。"""
-        if self.request.merge and ffmpeg_bin_path() is None:
+        # 只解析一次：两次调用之间环境可能变化，第二次拿到 None 会退化成 AttributeError。
+        ffmpeg_bin = ffmpeg_bin_path() if self.request.merge else None
+        if self.request.merge and ffmpeg_bin is None:
             raise RuntimeError(
                 "合并模式需要 FFmpeg，但未在系统中检测到它。\n\n"
-                "点击界面中的「一键下载 FFmpeg」即可自动安装便携版（装在程序目录）；\n"
+                f"点击界面中的「{FFMPEG_BUTTON_TEXT}」即可自动安装便携版（装在程序目录）；\n"
                 "也可以「复制 winget 命令」安装，或改用「分离保存」模式（无需 FFmpeg）。"
             )
         if yt_dlp is None:
@@ -197,8 +203,8 @@ class DownloadEngine:
             YtdlpLoggerBridge(self._on_log),
             postprocessor_hook=self._postprocessor_hook,
         )
-        if self.request.merge:
-            options["ffmpeg_location"] = str(ffmpeg_bin_path().parent)
+        if ffmpeg_bin is not None:
+            options["ffmpeg_location"] = str(ffmpeg_bin.parent)
         try:
             with yt_dlp.YoutubeDL(options) as ydl:
                 result_code = ydl.download([self.request.url])

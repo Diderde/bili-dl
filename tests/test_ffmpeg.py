@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Diderde
+# SPDX-License-Identifier: GPL-3.0-only
 """FFmpeg 便携安装与定位逻辑的单元测试（不访问网络）。"""
 
 from __future__ import annotations
@@ -91,3 +93,16 @@ class TestInstallFfmpegFromZip:
         (target / "bin" / "stale.txt").write_text("旧文件", encoding="utf-8")
         utils.install_ffmpeg_from_zip(zip_path, target)
         assert not (target / "bin" / "stale.txt").exists()  # 旧目录被整体替换
+
+    def test_refuses_to_replace_foreign_directory(self, tmp_path):
+        """目标目录不像便携安装时（可能是用户自己的 ffmpeg 目录）必须拒绝替换。"""
+        zip_path = tmp_path / "ffmpeg.zip"
+        self._make_ffmpeg_zip(zip_path)
+        target = tmp_path / "ffmpeg"
+        (target / "src").mkdir(parents=True)
+        (target / "src" / "keep.c").write_text("int main(void) { return 0; }", encoding="utf-8")
+
+        with pytest.raises(ValueError, match="不是本程序安装的便携 FFmpeg"):
+            utils.install_ffmpeg_from_zip(zip_path, target)
+
+        assert (target / "src" / "keep.c").is_file()  # 原有内容一个字节都没删
