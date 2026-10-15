@@ -26,7 +26,8 @@ GET_PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 ROOT = Path(__file__).resolve().parent
 APP_PACKAGE_DIR = ROOT / "src" / "bili_dl"
 VENV = ROOT / ".venv"
-REPORT = ROOT / "environment_report.txt"
+# 运行报告写进用户主目录，不落仓库根：克隆者的工作区不被运行产物污染
+REPORT = Path.home() / ".bili_dl" / "environment_report.txt"
 LOG = []
 
 
@@ -35,6 +36,7 @@ def write(message=""):
     print(text, flush=True)
     LOG.append(text)
     with contextlib.suppress(OSError):
+        REPORT.parent.mkdir(parents=True, exist_ok=True)
         REPORT.write_text("\n".join(LOG) + "\n", encoding="utf-8")
 
 

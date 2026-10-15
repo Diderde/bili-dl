@@ -84,7 +84,7 @@ set "RC=1"
 :finish
 if not "%RC%"=="0" (
     echo.
-    echo 启动失败。请打开同目录下的 environment_report.txt 查看具体原因。
+    echo 启动失败。请打开用户主目录 .bili_dl 下的 environment_report.txt 查看具体原因。
     pause
 )
 exit /b %RC%

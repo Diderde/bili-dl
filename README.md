@@ -28,7 +28,7 @@
 
 1. 保证 `run.bat`、`bootstrap.py`、`pyproject.toml` 与 `src/` 在同一目录。
 2. 双击 `run.bat`。启动器先输出**环境与依赖检查清单**（Python / tkinter / yt-dlp / curl_cffi / customtkinter / bili_dl，以及可选的 ffmpeg）：全绿则顺手把 yt-dlp 更新到 nightly 并启动；缺项则自动重建环境后再次出清单。
-3. 检查与安装详情保存在 `environment_report.txt`。
+3. 检查与安装详情保存在用户主目录的 `.bili_dl\environment_report.txt`。
 
 ## 手动安装
 
@@ -94,7 +94,6 @@ bili-dl/
 ├── bootstrap.py             # 环境自举：搜 Python、建 venv、装依赖（仅标准库）
 ├── pyproject.toml           # 打包与工具链配置
 ├── requirements.txt         # 手动安装依赖（等价于 pip install -e .）
-├── .gitattributes           # 行尾策略：文本文件统一 CRLF
 ├── src/bili_dl/
 │   ├── __main__.py          # python -m bili_dl 入口
 │   ├── gui.py               # CustomTkinter 界面

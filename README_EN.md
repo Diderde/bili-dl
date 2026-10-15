@@ -27,7 +27,7 @@ A Windows desktop tool to download Bilibili audio & video — save video and aud
 
 1. Keep `run.bat`, `bootstrap.py`, `pyproject.toml` and `src/` in the same folder.
 2. Double-click `run.bat`. The launcher first prints an **environment & dependency checklist** (Python / tkinter / yt-dlp / curl_cffi / customtkinter / bili_dl, plus optional ffmpeg): if everything is green it bumps yt-dlp to the nightly build and starts the app; anything missing triggers an automatic rebuild, then the checklist runs again.
-3. Details are saved to `environment_report.txt`.
+3. Details are saved to `.bili_dl\environment_report.txt` in your home directory.
 
 ## Manual installation
 
@@ -94,7 +94,6 @@ bili-dl/
 ├── bootstrap.py             # environment bootstrap (stdlib only)
 ├── pyproject.toml           # packaging & tooling config
 ├── requirements.txt         # manual install (equivalent to pip install -e .)
-├── .gitattributes           # line-ending policy: CRLF for text files
 ├── src/bili_dl/
 │   ├── __main__.py          # python -m bili_dl entry point
 │   ├── gui.py               # CustomTkinter interface
