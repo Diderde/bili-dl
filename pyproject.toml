@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=84.0.0"]
+requires = ["setuptools>=84.2.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -23,8 +23,8 @@ version = { attr = "bili_dl.__version__" }
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=9.1.1",
-    "ruff>=0.16.8",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
 ]
 
 [project.scripts]
